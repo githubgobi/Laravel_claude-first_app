@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(which mysql *)",
+      "Read(//c/laragon/bin/mysql//**)",
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -e 'CREATE DATABASE IF NOT EXISTS myapp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; SHOW DATABASES;')",
+      "Bash(/c/laragon/bin/mysql/mysql-8.4.3-winx64/bin/mysql.exe -u root -h 127.0.0.1 -P 3306 -e 'SHOW DATABASES;')",
+      "PowerShell(netstat -ano)",
+      "PowerShell(& \"C:\\\\laragon\\\\bin\\\\mysql\\\\mysql-8.4.3-winx64\\\\bin\\\\mysql.exe\" -u root -h 127.0.0.1 -P 3306 -e \"CREATE DATABASE IF NOT EXISTS myapp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; SHOW DATABASES;\" 2>&1)"
+    ]
+  }
+}
