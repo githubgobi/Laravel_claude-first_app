@@ -1,57 +1,189 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MyApp — Laravel 13
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel 13 application with two authentication layers: **web session auth** (Blade + forms) and **OAuth API auth** (Laravel Passport).
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Requirements
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- PHP 8.3+
+- Composer 2+
+- MySQL 8+
+- Node.js 18+ (for Vite assets)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Setup
 
 ```bash
-composer require laravel/boost --dev
+# 1. Install PHP dependencies
+composer install
 
-php artisan boost:install
+# 2. Copy environment file and generate app key
+cp .env.example .env
+php artisan key:generate
+
+# 3. Create the database (MySQL)
+mysql -u root -e "CREATE DATABASE myapp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# 4. Run all migrations (users + Passport OAuth tables)
+php artisan migrate
+
+# 5. Install Passport encryption keys and OAuth clients
+php artisan passport:install --no-interaction
+
+# 6. Install and build frontend assets
+npm install
+npm run build
+
+# 7. Start the dev server
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+The app will be available at `http://localhost:8000`.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Authentication
 
-## Code of Conduct
+### Web Auth (Blade + Sessions)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Cookie/session based authentication with Blade views.
 
-## Security Vulnerabilities
+| Route | Method | Middleware | Description |
+|---|---|---|---|
+| `/login` | GET | guest | Show login form |
+| `/login` | POST | guest | Submit credentials |
+| `/register` | GET | guest | Show registration form |
+| `/register` | POST | guest | Create account & auto-login |
+| `/dashboard` | GET | auth | Protected user dashboard |
+| `/logout` | POST | auth | Logout & invalidate session |
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+**Flow:**
+1. Visit `/register` to create an account — you are logged in automatically.
+2. Visit `/login` to authenticate with email and password.
+3. After login, you are redirected to `/dashboard`.
+4. The nav bar shows **Login / Register** for guests and **username + Logout** for authenticated users.
+
+**Controller:** `app/Http/Controllers/Web/AuthController.php`
+
+**Views:**
+```
+resources/views/
+├── layouts/app.blade.php      # Base layout with nav
+├── auth/
+│   ├── login.blade.php
+│   └── register.blade.php
+└── dashboard.blade.php
+```
+
+---
+
+### API Auth (Laravel Passport — OAuth 2.0)
+
+Token-based authentication for API consumers. All responses are JSON. Attach the returned `access_token` as a `Bearer` token on protected requests.
+
+#### Endpoints
+
+| Method | URL | Auth | Description |
+|---|---|---|---|
+| POST | `/api/auth/register` | Public | Register a new user |
+| POST | `/api/auth/login` | Public | Login and receive token |
+| GET | `/api/user` | Bearer token | Get authenticated user |
+| POST | `/api/auth/logout` | Bearer token | Revoke current token |
+
+#### Register
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "password_confirmation": "password123"
+}
+```
+
+#### Login
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Login successful.",
+  "access_token": "<token>",
+  "token_type": "Bearer",
+  "user": { "id": 1, "name": "John Doe", "email": "john@example.com" }
+}
+```
+
+#### Protected Request
+
+```http
+GET /api/user
+Authorization: Bearer <access_token>
+```
+
+**Controller:** `app/Http/Controllers/AuthController.php`
+
+---
+
+## Project Structure
+
+```
+app/
+├── Http/Controllers/
+│   ├── AuthController.php          # API (Passport) auth
+│   └── Web/
+│       └── AuthController.php      # Web (session) auth
+├── Models/
+│   └── User.php                    # Uses HasApiTokens + HasFactory + Notifiable
+config/
+├── auth.php                        # api guard → passport driver
+├── passport.php                    # Passport config
+database/migrations/
+├── 0001_01_01_000000_create_users_table.php
+├── 2026_05_21_*_create_oauth_*.php  # Passport tables
+routes/
+├── web.php                         # Web auth routes
+└── api.php                         # API auth routes
+resources/views/
+├── layouts/app.blade.php
+├── auth/login.blade.php
+├── auth/register.blade.php
+└── dashboard.blade.php
+```
+
+---
+
+## Environment Variables
+
+Key variables in `.env`:
+
+```env
+APP_NAME=Laravel
+APP_URL=http://localhost
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=myapp
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+---
 
 ## License
 
