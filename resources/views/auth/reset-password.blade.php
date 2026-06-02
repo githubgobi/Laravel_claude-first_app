@@ -1,19 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Login')
+@section('title', 'Reset Password')
 
 @section('content')
 <div class="card">
-    <h1>Login</h1>
+    <h1>Reset Password</h1>
 
     @if ($errors->any())
-        <div class="alert alert-error">
-            {{ $errors->first() }}
-        </div>
+        <div class="alert alert-error">{{ $errors->first() }}</div>
     @endif
 
-    <form method="POST" action="{{ route('login') }}">
+    <form method="POST" action="{{ route('password.update') }}">
         @csrf
+
+        <input type="hidden" name="token" value="{{ $token }}">
 
         <div class="form-group">
             <label for="email">Email Address</label>
@@ -21,7 +21,7 @@
                 type="email"
                 id="email"
                 name="email"
-                value="{{ old('email') }}"
+                value="{{ old('email', $email) }}"
                 required
                 autofocus
             >
@@ -31,7 +31,7 @@
         </div>
 
         <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password">New Password</label>
             <input
                 type="password"
                 id="password"
@@ -43,14 +43,17 @@
             @enderror
         </div>
 
-        <button type="submit" class="btn">Login</button>
-    </form>
+        <div class="form-group">
+            <label for="password_confirmation">Confirm New Password</label>
+            <input
+                type="password"
+                id="password_confirmation"
+                name="password_confirmation"
+                required
+            >
+        </div>
 
-    <p class="link-row" style="margin-top:.75rem">
-        <a href="{{ route('password.request') }}">Forgot your password?</a>
-    </p>
-    <p class="link-row">
-        Don't have an account? <a href="{{ route('register') }}">Register</a>
-    </p>
+        <button type="submit" class="btn">Reset Password</button>
+    </form>
 </div>
 @endsection
