@@ -59,6 +59,10 @@
             padding: 0 1rem;
         }
 
+        .container.wide {
+            max-width: 680px;
+        }
+
         .card {
             background: #fff;
             border-radius: 10px;
@@ -147,6 +151,7 @@
                 <a href="{{ route('register') }}">Register</a>
             @else
                 <span style="font-size:.9rem;color:#555">Hi, {{ Auth::user()->name }}</span>
+                <a href="{{ route('profile.edit') }}">Profile</a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit">Logout</button>
@@ -155,7 +160,7 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container @yield('container-class')"  >
         @if (session('status'))
             <div class="alert alert-success">{{ session('status') }}</div>
         @endif
