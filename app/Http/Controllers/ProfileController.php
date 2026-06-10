@@ -33,7 +33,7 @@ class ProfileController extends Controller
     public function updatePassword(Request $request): JsonResponse
     {
         $request->validate([
-            'current_password' => 'required|string|current_password',
+            'current_password' => 'required|string|current_password:api',
             'password'         => 'required|string|min:8|confirmed',
         ]);
 

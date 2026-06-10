@@ -27,7 +27,10 @@ class SecurityHeaders
         // Restrict browser features
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
-        // Remove server fingerprinting headers
+        // Remove server fingerprinting headers.
+        // X-Powered-By is injected by PHP at the SAPI level, so it must be
+        // removed via header_remove() — not the response object.
+        header_remove('X-Powered-By');
         $response->headers->remove('X-Powered-By');
         $response->headers->remove('Server');
 

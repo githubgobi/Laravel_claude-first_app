@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TicketClassifierController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,4 +28,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('profile',              [ProfileController::class, 'show'])->name('api.profile.show');
     Route::patch('profile',            [ProfileController::class, 'update'])->name('api.profile.update');
     Route::put('profile/password',     [ProfileController::class, 'updatePassword'])->name('api.profile.password');
+
+    //classfier
+    Route::post('tickets/classify', [TicketClassifierController::class, 'classify'])
+    ->middleware('throttle:20,1');
 });
