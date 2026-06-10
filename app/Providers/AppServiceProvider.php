@@ -11,12 +11,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(\OpenAI\Client::class, fn () =>
-        \OpenAI::factory()
-            ->withApiKey((string) config('openai.api_key'))
-            ->withBaseUri((string) config('openai.base_uri'))
-            ->make()
-    );
+        $this->app->singleton(\OpenAI\Contracts\ClientContract::class, fn () =>
+            \OpenAI\OpenAI::factory()
+                ->withApiKey((string) config('openai.api_key'))
+                ->withBaseUri((string) config('openai.base_uri'))
+                ->make()
+        );
     }
 
     /**

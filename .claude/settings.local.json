@@ -8,7 +8,16 @@
       "PowerShell(netstat -ano)",
       "PowerShell(& \"C:\\\\laragon\\\\bin\\\\mysql\\\\mysql-8.4.3-winx64\\\\bin\\\\mysql.exe\" -u root -h 127.0.0.1 -P 3306 -e \"CREATE DATABASE IF NOT EXISTS myapp CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; SHOW DATABASES;\" 2>&1)",
       "Bash(mkdir -p /c/laragon/www/myapp/resources/views/layouts /c/laragon/www/myapp/resources/views/auth)",
-      "Bash(php artisan *)"
+      "Bash(php artisan *)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh repo *)",
+      "PowerShell(Get-Command gh -ErrorAction SilentlyContinue)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(Get-ChildItem -Path \"C:\\\\laragon\\\\www\\\\Lesson1\\\\\" -Recurse -Force | Select-Object FullName | head -50)",
+      "Bash(find /c/laragon/www/Lesson1 -type f | head -100)",
+      "Read(//c/laragon/www/Lesson1/**)",
+      "Bash(Select-String -Path \"c:\\\\laragon\\\\www\\\\myapp\\\\vendor\\\\openai-php\\\\client\\\\src\\\\Responses\\\\Chat\\\\CreateResponse.php\" -Pattern \"fake\" -Context 2)"
     ],
     "additionalDirectories": [
       "C:\\laragon\\www\\myapp\\resources\\views"
